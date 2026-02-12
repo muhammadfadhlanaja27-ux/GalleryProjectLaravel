@@ -35,3 +35,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::put('/gallery/{id}', [AdminGallery::class, 'update'])->name('gallery.update');
     Route::delete('/gallery/{id}', [AdminGallery::class, 'destroy'])->name('gallery.destroy');
 });
+
+// Tambahin ini sementara di web.php buat reset
+Route::get('/clear', function() {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('view:clear');
+    return "Cache cleared!";
+});
