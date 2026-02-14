@@ -1,30 +1,27 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan; // WAJIB ADA BIAR GAK ERROR 500
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\Admin\GalleryController as AdminGallery;
 use App\Models\Gallery;
 
+// --- HALAMAN DEPAN ---
 Route::get('/', function () {
-    // 1. Ambil 5 foto terbaru
-    $galleries = Gallery::latest()->take(5)->get();
-
-    // 2. TRANSFORMASI: Ubah path database menjadi URL publik yang bisa dibaca React
-    $imageUrls = $galleries->map(function($item) {
-        return asset('storage/' . $item->image);
-    });
-
-    // 3. Kirim $imageUrls ke view index
-    return view('index', compact('imageUrls'));
+    // Ambil semua data gallery biar tampil di landing page
+    $galleries = Gallery::latest()->get();
+    
+    // Langsung arahkan ke view 'index' dengan variabel yang konsisten
+    return view('index', compact('galleries'));
 })->name('home');
 
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
+// Rute ini arahkan ke controller yang kodenya udah kita benerin tadi
 Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
 Route::get('/gallery/{id}', [GalleryController::class, 'show'])->name('gallery.single');
-
 
 // --- HALAMAN ADMIN (DASHBOARD) ---
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -36,10 +33,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/gallery/{id}', [AdminGallery::class, 'destroy'])->name('gallery.destroy');
 });
 
-// Tambahin ini sementara di web.php buat reset
+// Jalankan ini di browser: url-web-lu.com/clear
 Route::get('/clear', function() {
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
     Artisan::call('view:clear');
-    return "Cache cleared!";
+    Artisan::call('route:clear');
+    return "Semua sampah cache berhasil dibuang!";
 });
